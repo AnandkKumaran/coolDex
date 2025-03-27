@@ -1,19 +1,21 @@
-import "./App.css";
-import Header from "./components/Header";
-import Swap from "./components/Swap";
-import Tokens from "./components/Tokens";
-import {Routes, Route} from "react-router-dom";
+import './App.css'
+import Header from './components/Header'
+import Swap from './components/Swap'
+import Tokens from './components/Tokens'
+import { Routes, Route } from 'react-router-dom'
 
 function App() {
-  return <div className="App">
-    <Header/>
-    <div className="mainWindow">
-      <Routes>
-        <Route path="/" element={<Swap />}></Route>
-        <Route path="/tokens" element={<Tokens />}></Route>
-      </Routes>
+  return (
+    <div className="App">
+      <Header />
+      <div className="mainWindow">
+        <Routes>
+          <Route path="/" element={<Swap />}></Route>
+          <Route path="/tokens" element={<Tokens />}></Route>
+        </Routes>
+      </div>
     </div>
-  </div>;
+  )
 }
 
-export default App;
+export default App

@@ -1,57 +1,93 @@
-import React, { useState, useEffect } from "react";
-import { Popover, Radio, Input, Modal } from "antd";
+import React, { useState, useEffect } from 'react'
+import { Popover, Radio, Input, Modal } from 'antd'
 import {
   SettingOutlined,
   DownOutlined,
   ArrowDownOutlined,
-} from "@ant-design/icons";
-import tokenList from "../tokenList.json";
+} from '@ant-design/icons'
+import tokenList from '../tokenList.json'
+import axios from 'axios'
 
 function Swap() {
-  const [slippage, setSlippage] = useState(2.5);
+  const [slippage, setSlippage] = useState(2.5)
 
-  const [tokenOneAmount, setTokenOneAmount] = useState(null);
-  const [tokenTwoAmount, setTokenTwoAmount] = useState(null);
+  const [tokenOneAmount, setTokenOneAmount] = useState(null)
+  const [tokenTwoAmount, setTokenTwoAmount] = useState(null)
 
-  const [tokenOne, setTokenOne] = useState(tokenList[0]);
-  const [tokenTwo, setTokenTwo] = useState(tokenList[1]);
+  const [tokenOne, setTokenOne] = useState(tokenList[0])
+  const [tokenTwo, setTokenTwo] = useState(tokenList[1])
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [changeToken, setChangeToken] = useState(1);
+  const [isOpen, setIsOpen] = useState(false)
+  const [changeToken, setChangeToken] = useState(1)
+
+  const [prices, setPrices] = useState(null)
 
   function handleSlippageChange(e) {
-    setSlippage(e.target.value);
+    setSlippage(e.target.value)
   }
 
   function changeOneAmount(e) {
-    setTokenOneAmount(e.target.value);
+    setTokenOneAmount(e.target.value)
+
+    if (e.target.value && prices) {
+      setTokenTwoAmount((e.target.value * prices.ratio).toFixed(4))
+    } else {
+      setTokenTwoAmount(null)
+    }
   }
 
   function changeTwoAmount(e) {
-    setTokenTwoAmount(e.target.value);
+    setTokenTwoAmount(e.target.value)
   }
 
   function switchTokens() {
-    const one = tokenOne;
-    const two = tokenTwo;
+    setPrices(null)
+    setTokenOneAmount(null)
+    setTokenTwoAmount(null)
 
-    setTokenOne(two);
-    setTokenTwo(one);
+    const one = tokenOne
+    const two = tokenTwo
+
+    setTokenOne(two)
+    setTokenTwo(one)
+
+    fetchPrices(two.address, one.address)
   }
 
   function openModal(asset) {
-    setChangeToken(asset);
-    setIsOpen(true);
+    setChangeToken(asset)
+    setIsOpen(true)
   }
 
   function modifyToken(i) {
+    setPrices(null)
+    setTokenOneAmount(null)
+    setTokenTwoAmount(null)
+
     if (changeToken === 1) {
-      setTokenOne(tokenList[i]);
+      setTokenOne(tokenList[i])
+      fetchPrices(tokenList[i].address, tokenTwo.address)
     } else {
-      setTokenTwo(tokenList[i]);
+      setTokenTwo(tokenList[i])
+      fetchPrices(tokenList[i].address, tokenOne.address)
     }
-    setIsOpen(false);
+    setIsOpen(false)
   }
+
+  async function fetchPrices(tokenOne, tokenTwo) {
+    const response = await axios.get(`http://localhost:3001/tokenPrice`, {
+      params: {
+        addressTokenOne: tokenOne,
+        addressTokenTwo: tokenTwo,
+      },
+    })
+
+    setPrices(response.data)
+  }
+
+  useEffect(() => {
+    fetchPrices(tokenList[0].address, tokenList[1].address)
+  }, [])
 
   const settings = (
     <>
@@ -64,7 +100,7 @@ function Swap() {
         </Radio.Group>
       </div>
     </>
-  );
+  )
 
   return (
     <>
@@ -89,7 +125,7 @@ function Swap() {
                   <div className="tokenTicker">{e.ticker}</div>
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       </Modal>
@@ -148,7 +184,7 @@ function Swap() {
         </div>
       </div>
     </>
-  );
+  )
 }
 
-export default Swap;
+export default Swap
